@@ -1,107 +1,461 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Ghidra Reverse Engineering</title>
-		<meta name="apple-mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css">
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>
-					<h1>Ghidra Reverse Engineering</h1>
-					<p>A course by [Your Name]</p>
-				</section>
+
+<head>
+	<meta charset="utf-8">
+	<title>Ghidra Reverse Engineering</title>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css">
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>Ghidra Reverse Engineering</h1>
+				<p>A course by [Your Name]</p>
+			</section>
+			<section>
 				<section>
 					<h2>Module 1: Introduction to Reverse Engineering</h2>
+					<p class="fragment"><span class="r-fit-text">The Art of Parsing Unknowns</span></p>
+					<aside class="notes">
+						Welcome everyone. This course is about peeling back the layers of software to understand how it
+						ticks.
+						Think of it like being a mechanic who lost the manual but needs to fix the engine.
+					</aside>
+				</section>
+
+				<section>
 					<h3>What is Reverse Engineering?</h3>
 					<ul>
-						<li>Process of analyzing a system to identify its components and interrelationships, and create representations of the system in another form or at a higher level of abstraction.</li>
-						<li>Understanding how something works without prior knowledge or documentation.</li>
+						<li class="fragment">Analyzing a system to identify components and interrelationships.</li>
+						<li class="fragment">Creating representations at higher levels of abstraction.</li>
+						<li class="fragment"><em>Understanding how something works without documentation.</em></li>
 					</ul>
+					<aside class="notes">
+						Formal definition: Taking it apart to see how it works.
+						Key concept: "Higher levels of abstraction" -> We go from 0s and 1s to Assembly, then to C-like
+						pseudo-code.
+					</aside>
 				</section>
+
 				<section>
-					<h2>Module 1: Introduction to Reverse Engineering</h2>
 					<h3>Why Reverse Engineer?</h3>
 					<ul>
-						<li>Security Research & Vulnerability Discovery</li>
-						<li>Malware Analysis</li>
-						<li>Interoperability & Compatibility</li>
-						<li>Legacy System Maintenance</li>
-						<li>Competitor Analysis</li>
+						<li class="fragment">Security Research & Vulnerability Discovery</li>
+						<li class="fragment">Malware Analysis</li>
+						<li class="fragment">Interoperability & Compatibility</li>
+						<li class="fragment">Legacy System Maintenance</li>
 					</ul>
+					<aside class="notes">
+						Mention that it's also fun! Solving puzzles.
+						Security: Finding bugs before the bad guys do.
+						Interoperability: Making your software talk to undocumented APIs (e.g., Samba vs Windows).
+						Legacy: "The guy who wrote this retired 10 years ago and we lost the source code."
+					</aside>
 				</section>
+
 				<section>
-					<h2>Module 1: Introduction to Reverse Engineering</h2>
 					<h3>Static vs. Dynamic Analysis</h3>
-					<ul>
-						<li><strong>Static Analysis:</strong> Analyzing code without executing it (e.g., examining binary in Ghidra, reading source code).</li>
-						<li><strong>Dynamic Analysis:</strong> Analyzing code by executing it and observing its behavior (e.g., debugging, tracing execution, monitoring network traffic).</li>
-					</ul>
+					<div class="r-hstack">
+						<div class="fragment" style="width: 50%; border-right: 2px solid #555;">
+							<h4>Static</h4>
+							<p>Analyzing code <strong>without</strong> executing it.</p>
+							<small>e.g., Ghidra, reading source.</small>
+						</div>
+						<div class="fragment" style="width: 50%; padding-left: 20px;">
+							<h4>Dynamic</h4>
+							<p>Analyzing code by <strong>executing</strong> it.</p>
+							<small>e.g., debuggers, tracing, network monit.</small>
+						</div>
+					</div>
+					<aside class="notes">
+						Analogy:
+						Static = An Autopsy. The patient is dead (not running), you open them up and look at organs.
+						Detailed but static.
+						Dynamic = A Health Check. The patient is alive (running). You check pulse, blood pressure. You
+						see reactions but maybe not the internal cause immediately.
+						We focus on Static (Autopsy) in this course.
+					</aside>
 				</section>
+			</section>
+
+			<section>
 				<section>
 					<h2>Module 2: Getting Started with Ghidra</h2>
+					<img class="r-frame" style="background: rgba(255,255,255,0.1); width: 200px;"
+						data-src="https://ghidra-sre.org/images/GHIDRA_1.png" alt="Ghidra Logo">
+					<p class="fragment">The NSA's Gift to the Community</p>
+					<aside class="notes">
+						Released at RSA 2019. It was a game changer because it included a high-quality DECOMPILER for
+						free.
+						Previously, IDA Pro with decompiler cost thousands of dollars.
+					</aside>
+				</section>
+
+				<section>
 					<h3>What is Ghidra?</h3>
 					<ul>
-						<li>A software reverse engineering (SRE) suite of tools developed by the NSA.</li>
-						<li>Free & open source.</li>
-						<li>Features include disassembly, assembly, decompilation, graphing, and scripting.</li>
+						<li class="fragment">SRE suite developed by the NSA.</li>
+						<li class="fragment">Free & Open Source (Java/C++).</li>
+						<li class="fragment"><strong>Features:</strong> Disassembly, Decompilation, Graphing, Scripting.
+						</li>
 					</ul>
+					<aside class="notes">
+						Written in Java (UI) and C++ (Decompiler core).
+						Multi-platform: Runs on Linux, Mac, Windows.
+					</aside>
 				</section>
+
 				<section>
-					<h2>Module 2: Getting Started with Ghidra</h2>
-					<h3>Ghidra's Core Components</h3>
-					<ul>
-						<li><strong>Project Manager:</strong> Manages your reverse engineering projects.</li>
-						<li><strong>Code Browser:</strong> The primary interface for analyzing binaries.</li>
-						<li><strong>Decompiler:</strong> Converts machine code back into high-level pseudo-code (C-like).</li>
-						<li><strong>Symbol Tree:</strong> Lists functions, labels, and other symbols.</li>
-						<li><strong>Data Type Manager:</strong> Manages custom data structures and types.</li>
-					</ul>
+					<h3>Core Components</h3>
+					<div style="font-size: 0.8em;">
+						<ul>
+							<li class="fragment"><strong>Project Manager:</strong> Manages files/versions.</li>
+							<li class="fragment"><strong>Code Browser:</strong> The main workbench.</li>
+							<li class="fragment"><strong>Decompiler:</strong> Lifting assembly to C.</li>
+							<li class="fragment"><strong>Symbol Tree:</strong> Navigation map.</li>
+							<li class="fragment"><strong>Data Type Manager:</strong> Struct definition.</li>
+						</ul>
+					</div>
+					<aside class="notes">
+						We will spend 90% of our time in the Code Browser.
+						Think of Project Manager as the file explorer.
+					</aside>
 				</section>
+
 				<section>
-					<h2>Module 2: Getting Started with Ghidra</h2>
 					<h3>Importing a Binary</h3>
 					<ol>
-						<li>Open Ghidra Project Manager.</li>
-						<li>File -> Import File...</li>
-						<li>Select your binary.</li>
-						<li>Analyze it with default options for now.</li>
+						<li class="fragment">Open Project Manager.</li>
+						<li class="fragment">File &rightarrow; Import File...</li>
+						<li class="fragment">Select binary.</li>
+						<li class="fragment"><strong>Analyze</strong> (Defaults are usually fine).</li>
 					</ol>
+					<aside class="notes">
+						"Analyze" triggers the auto-analysis. It identifies functions, strings, switches, etc.
+						Always let it finish (watching the progress bar in bottom right) before starting deep work.
+					</aside>
 				</section>
+
 				<section>
-					<h2>Module 2: Getting Started with Ghidra</h2>
 					<h3>Navigating the Code Browser</h3>
-					<ul>
-						<li><strong>Listing Window:</strong> Shows disassembled machine code.</li>
-						<li><strong>Decompiler Window:</strong> Shows pseudo-code.</li>
-						<li><strong>Functions Window:</strong> Lists all identified functions.</li>
-						<li><strong>Strings Window:</strong> Lists all identified strings.</li>
-						<li><strong>Symbol Tree:</strong> Browse and manage symbols.</li>
-					</ul>
+					<table style="font-size: 0.7em;">
+						<tr class="fragment">
+							<td><strong>Listing</strong></td>
+							<td>Disassembled machine code.</td>
+						</tr>
+						<tr class="fragment">
+							<td><strong>Decompiler</strong></td>
+							<td>Pseudo-code.</td>
+						</tr>
+						<tr class="fragment">
+							<td><strong>Functions</strong></td>
+							<td>List of subroutines.</td>
+						</tr>
+						<tr class="fragment">
+							<td><strong>Strings</strong></td>
+							<td>ASCII/Unicode text.</td>
+						</tr>
+					</table>
+					<aside class="notes">
+						Listing is the truth (what the CPU sees).
+						Decompiler is the interpretation (what humans want to see).
+						They sync! Clicking in one updates the other.
+					</aside>
 				</section>
-			</div>
+			</section>
+			<section>
+				<section>
+					<h2>Module 3: Basic Static Analysis</h2>
+					<p>Key Techniques for Understanding Code</p>
+					<p class="fragment">Renaming & Annotating</p>
+					<p class="fragment">Data Types</p>
+					<p class="fragment">Cross-References</p>
+					<aside class="notes">
+						Module 3 covers the bread and butter of static analysis.
+						You will do these actions 1000 times a day.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Renaming & Annotating</h3>
+					<ul>
+						<li class="fragment"><strong>Goal:</strong> Make code human-readable.</li>
+						<li class="fragment"><strong>Hotkey 'L':</strong> Rename labels (variables, functions).</li>
+						<li class="fragment"><strong>Hotkey ';':</strong> Add comment.</li>
+					</ul>
+					<br>
+					<pre class="fragment"><code class="c" data-trim data-line-numbers>
+						// Before
+						void FUN_00401000(void) { ... }
+						
+						// After
+						void check_password(void) { ... }
+					</code></pre>
+					<aside class="notes">
+						Pro Tip: Don't be afraid to rename something "unknown_func_1". It's better than FUN_004123AB.
+						You can always rename it again later when you know more.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Data Types</h3>
+					<ul>
+						<li class="fragment">Machine code is just bytes.</li>
+						<li class="fragment">Ghidra maps them to types (<code>int</code>, <code>char</code>,
+							<code>structs</code>).
+						</li>
+						<li class="fragment"><strong>Hotkey 'Y':</strong> Retype variable/data.</li>
+						<li class="fragment"><strong>Data Type Manager:</strong> Create custom C structs.</li>
+					</ul>
+					<aside class="notes">
+						Garbage In, Garbage Out. If you tell Ghidra a pointer is an integer, the decompiler will show
+						you math instead of memory access.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Cross-References (X-Refs)</h3>
+					<ul>
+						<li class="fragment"><strong>Find uses of functions or data.</strong></li>
+						<li class="fragment"><strong>Ctrl+Shift+F:</strong> Show X-Refs to current location.</li>
+						<li class="fragment">Used to trace:
+							<ul>
+								<li>Who calls this function?</li>
+								<li>Where is this global variable modified?</li>
+							</ul>
+						</li>
+					</ul>
+					<aside class="notes">
+						X-Refs are your GPS. Without them, you are lost in a sea of assembly.
+					</aside>
+				</section>
+
+				<section>
+					<h3>String Search</h3>
+					<ul>
+						<li class="fragment"><strong>Search -> Program Text:</strong> Find strings in memory.</li>
+						<li class="fragment">Strings often reveal functionality (error messages, file paths).</li>
+					</ul>
+					<aside class="notes">
+						Strings are the low-hanging fruit. "Access Denied" -> Find where it's used -> You found the auth
+						check.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Basic Assembly</h3>
+					<div class="r-hstack">
+						<div style="width: 50%">
+							<ul>
+								<li class="fragment"><strong>CMP / JZ:</strong> If/Else logic.</li>
+								<li class="fragment"><strong>MOV:</strong> Data transfer.</li>
+								<li class="fragment"><strong>CALL:</strong> Function execution.</li>
+							</ul>
+						</div>
+						<div style="width: 50%">
+							<pre class="fragment"><code class="x86asm" data-trim>
+								MOV EAX, 0x1
+								TEST EAX, EAX
+								JZ label_failure
+								CALL success_func
+							</code></pre>
+						</div>
+					</div>
+					<aside class="notes">
+						You don't need to be an assembly wizard, but you need to know the basics.
+						CMP = Compare.
+						JZ = Jump if Zero (often means "if equal" after a compare).
+					</aside>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Module 4: Decompilation</h2>
+					<p>Reading the "Matrix" (or at least C-like pseudo-code)</p>
+					<p class="fragment"><span class="r-fit-text">It is NOT source code!</span></p>
+					<aside class="notes">
+						Managing expectations is key here. Users often trust the decompiler too much.
+					</aside>
+				</section>
+
+				<section>
+					<h3>The Decompiler</h3>
+					<ul>
+						<li class="fragment"><strong>Definition:</strong> Transforms machine code to high-level
+							pseudo-code.</li>
+						<li class="fragment"><strong>Process:</strong> Assembly &rightarrow; P-Code &rightarrow; AST
+							Analysis &rightarrow; C-like output.</li>
+					</ul>
+					<br>
+					<div class="fragment fade-in">
+						<p><em>It allows understanding logic without being an assembly expert.</em></p>
+					</div>
+					<aside class="notes">
+						P-Code is Ghidra's intermediate language. It allows Ghidra to support many architectures (ARM,
+						x86, MIPS) with one decompiler core.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Reading Pseudo-code</h3>
+					<div class="r-hstack">
+						<div style="width: 50%">
+							<ul>
+								<li class="fragment">Variables: <code>uVar1</code>, <code>iVar2</code>.</li>
+								<li class="fragment">Flow structures are reconstructed.</li>
+							</ul>
+						</div>
+						<div style="width: 50%">
+							<pre class="fragment"><code class="c" data-trim data-line-numbers>
+								// Ghidra Output
+								if (iVar2 == 0) {
+									uVar1 = 1;
+								}
+							</code></pre>
+						</div>
+					</div>
+					<p class="fragment" style="color: #ff5555; margin-top: 1em;"><strong>Tip:</strong> Verify tricky
+						parts in assembly.</p>
+					<aside class="notes">
+						uVar1 = Unsigned Variable 1.
+						iVar2 = Integer (signed) Variable 2.
+						Rename these immediately when you figure out what they are!
+					</aside>
+				</section>
+
+				<section>
+					<h3>Common Challenges</h3>
+					<table style="font-size: 0.7em;">
+						<thead>
+							<tr>
+								<th>Issue</th>
+								<th>Description</th>
+								<th>Fix</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="fragment">
+								<td>Incorrect Types</td>
+								<td>Decompiler guesses (wrongly).</td>
+								<td>Retype variables (Y)</td>
+							</tr>
+							<tr class="fragment">
+								<td>Missing Signatures</td>
+								<td>Wrong calling convention.</td>
+								<td>Edit Function Signature</td>
+							</tr>
+							<tr class="fragment">
+								<td>Optimization</td>
+								<td>Inlined functions/loops.</td>
+								<td>Analyze carefully</td>
+							</tr>
+						</tbody>
+					</table>
+					<aside class="notes">
+						"Edit Function Signature" (F) is your best friend.
+						If decompilation looks wobbly, check the call signature.
+					</aside>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Module 5: Scripting</h2>
+					<p>Unleash the Power of Automation</p>
+					<pre><code class="python" data-trim data-noescape>
+# The possibilities are endless
+def automate_all_the_things():
+    analyze_binary()
+    find_vulnerabilities()
+    profit()
+					</code></pre>
+					<aside class="notes">
+						When you have to do the same thing 10 times, script it.
+						Ghidra makes this very easy.
+					</aside>
+				</section>
+
+				<section>
+					<h3>GhidraDev & Python</h3>
+					<ul>
+						<li class="fragment"><strong>Built on Java:</strong> Supports Jython (Python 2.7).</li>
+						<li class="fragment"><strong>Script Manager:</strong> Green "Play" button.</li>
+						<li class="fragment"><strong>Examples:</strong> Over 100+ included scripts.</li>
+					</ul>
+					<aside class="notes">
+						Note: Jython is Python 2.7 running on the JVM. It has access to all Java classes in Ghidra.
+						There are extensions like "Ghidrathon" if you really need Python 3.
+					</aside>
+				</section>
+
+				<section>
+					<h3>The Flat API</h3>
+					<p>Simplified API for common tasks.</p>
+					<pre class="fragment"><code class="python" data-trim data-line-numbers="1-2|4-5">
+						# Get current context
+						prog = currentProgram
+						addr = currentAddress
+						
+						# Interact with binary
+						func = getFunctionAt(addr)
+						print("Function: {0}".format(func.getName()))
+					</code></pre>
+					<aside class="notes">
+						The Flat APl is a set of helper functions that wrap the complex underlying Java API.
+						Always check the flat API first.
+					</aside>
+				</section>
+
+				<section>
+					<h3>Automation Examples</h3>
+					<ul>
+						<li class="fragment"><strong>Bulk Renaming:</strong> Regex code refactoring.</li>
+						<li class="fragment"><strong>De-obfuscation:</strong> <code>XOR</code> decode memory regions.
+						</li>
+						<li class="fragment"><strong>Signature Matching:</strong> Find vulnerable patterns (e.g.
+							<code>strcpy</code> calls).
+						</li>
+					</ul>
+					<aside class="notes">
+						Example: You have 50 strings that are XOR encoded. You can write a script to decode them all in
+						1 second.
+						Manually, that would take hours.
+					</aside>
+				</section>
+			</section>
+			<section>
+				<h2>Course Completed!</h2>
+				<h3>Next Steps</h3>
+				<ul>
+					<li>Practice on "Crackme" challenges.</li>
+					<li>Explore Ghidra extensions.</li>
+					<li>Read the detailed docs in <code>/docs</code>.</li>
+				</ul>
+			</section>
 		</div>
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
+	</div>
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
+
 </html>
